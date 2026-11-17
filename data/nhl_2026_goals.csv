@@ -2064,3 +2064,12 @@ game_id,season,game_type,game_date,goal_no,period,period_type,time_in_period,gam
 2026020330,20262027,2,2026-11-15,4,2,REG,17:43,2263,NSH,False,8481535,Nils Hoglander,8482482,Adam Wilsby,,,ev,none,False,tip-in,3,1,5
 2026020330,20262027,2,2026-11-15,5,3,REG,07:40,2860,SJS,True,8484801,Macklin Celebrini,8484227,Will Smith,8476885,Jacob Trouba,ev,none,False,wrist,4,1,9
 2026020330,20262027,2,2026-11-15,6,3,REG,16:35,3395,NSH,False,8474564,Steven Stamkos,8476887,Filip Forsberg,8475158,Ryan O'Reilly,pp,none,False,wrist,4,2,12
+2026020331,20262027,2,2026-11-16,1,2,REG,07:59,1679,MTL,False,8476479,Phillip Danault,8483457,Lane Hutson,8480865,Noah Dobson,ev,none,False,tip-in,0,1,3
+2026020331,20262027,2,2026-11-16,2,2,REG,09:47,1787,NYR,True,8482157,Will Cuylle,8477969,Marcus Pettersson,8476468,J.T. Miller,ev,none,False,deflected,1,1,5
+2026020331,20262027,2,2026-11-16,3,2,REG,19:03,2343,NYR,True,8482157,Will Cuylle,8479323,Adam Fox,,,sh,none,False,wrist,2,1,6
+2026020331,20262027,2,2026-11-16,4,3,REG,06:44,2804,NYR,True,8482666,Scott Morrow,8483690,Noah Laba,,,ev,none,False,wrist,3,1,1
+2026020332,20262027,2,2026-11-16,1,2,REG,15:05,2105,VAN,False,8478498,Jake DeBrusk,8478444,Brock Boeser,8483476,Jonathan Lekkerimäki,pp,none,False,wrist,0,1,6
+2026020332,20262027,2,2026-11-16,2,3,REG,02:50,2570,UTA,True,8476389,Vincent Trocheck,8483431,Logan Cooley,8479343,Clayton Keller,pp,none,False,snap,1,1,4
+2026020332,20262027,2,2026-11-16,3,3,REG,04:40,2680,VAN,False,8480078,Filip Chytil,8478444,Brock Boeser,,,ev,none,False,wrap-around,1,2,3
+2026020332,20262027,2,2026-11-16,4,3,REG,11:39,3099,UTA,True,8480849,Barrett Hayton,8479977,Kailer Yamamoto,8475314,Anders Lee,ev,none,False,snap,2,2,4
+2026020332,20262027,2,2026-11-16,5,3,REG,15:37,3337,VAN,False,8478444,Brock Boeser,8478498,Jake DeBrusk,8483476,Jonathan Lekkerimäki,pp,none,False,slap,2,3,8
