@@ -1,44 +1,37 @@
 # .github/workflows/nhl.yml
-# Morning run: ingest all box scores, grade last night's boards, write the report.
-# Push of boards: build teams.csv, price the boards, build paper slips.
-# Repo layout expected:
-#   nhl_ingest.py  nhl_system.py
-#   boards/nhl/<date>/*.net.json      <date> = the NHL's own date (US Eastern) of the games
-#   ledger/nhl.sqlite                 created on the first run, committed by the workflow
+# Downloads NHL box scores every hour overnight and commits the tables to data/.
+# Needs only nhl_ingest.py in the top folder of the repo.
 name: nhl
 
 on:
   schedule:
-    - cron: "17 10 * * *"             # 10:17 UTC = 05:17 US Eastern: every game of the night is final
-  push:
-    paths: ["boards/nhl/**"]
+    - cron: "17 1-11 * * *"           # hourly 01:17-11:17 UTC; games end 02:00-06:00 UTC
   workflow_dispatch:
-    inputs:
-      date:
-        description: "NHL date to grade (YYYY-MM-DD); empty = yesterday, US Eastern"
-        required: false
 
 permissions:
   contents: write
 
-concurrency:                          # two runs must never commit the ledger at the same time
-  group: nhl-ledger
+concurrency:
+  group: nhl-data
   cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
 
 env:
   NHL_CACHE: cache
   NHL_OUT: data
-  NHL_DB: ledger/nhl.sqlite
 
 jobs:
-  nhl:
+  ingest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pandas numpy requests duckdb tabulate
+      - run: pip install pandas numpy requests duckdb
 
       - uses: actions/cache/restore@v4
         with:
@@ -46,57 +39,37 @@ jobs:
           key: nhl-cache-${{ github.run_id }}
           restore-keys: nhl-cache-
 
-      - run: mkdir -p ledger results && python nhl_system.py selftest | tail -1
-
       - name: Ingest box scores
         id: ingest
-        continue-on-error: true       # a failed ProLyt upload must not stop the grading; the CSVs are already written
-        run: python nhl_ingest.py
+        continue-on-error: true
+        run: |
+          mkdir -p cache data
+          python nhl_ingest.py 2>&1 | tee ingest.log
         env:
           PROLYT_API_KEY: ${{ secrets.PROLYT_API_KEY }}
 
-      - uses: actions/cache/save@v4   # saved even when the upload failed, or the next run downloads the season again
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: cache
           key: nhl-cache-${{ github.run_id }}
 
-      # ---------------- boards were pushed: price every date that has boards and is not graded yet
-      - name: Price boards and build paper slips
-        if: github.event_name == 'push'
-        run: |
-          today=$(TZ=America/New_York date +%F)
-          for dir in boards/nhl/*/; do
-            d=$(basename "$dir")
-            [[ "$d" < "$today" ]] && continue          # never re-price a night that has been played
-            python nhl_system.py teams --date "$d" --ingest data --out teams.csv | tee teams.log
-            b2b=$(grep -oP '(?<=--b2b )[A-Z,]+' teams.log || true)
-            python nhl_system.py price --date "$d" --boards "$dir" --teams teams.csv ${b2b:+--b2b "$b2b"}
-            python nhl_system.py slips --date "$d" --targets 3 5 7 | tee "results/slips-$d.txt"
-          done
-
-      # ---------------- morning: grade last night
-      - name: Grade and report
-        if: github.event_name != 'push'
-        run: |
-          d="${{ github.event.inputs.date }}"
-          d="${d:-$(TZ=America/New_York date -d yesterday +%F)}"
-          if [ ! -d "boards/nhl/$d" ]; then echo "no boards for $d: nothing to grade"; exit 0; fi
-          python nhl_system.py results --date "$d" --ingest data --out "results/$d.txt"
-          python nhl_system.py grade   --date "$d" --results "results/$d.txt"
-          python nhl_system.py report
-          cp ledger/nhl_ledger_report.md results/report.md
-          head -3 results/report.md >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Commit ledger, results, report
+      - name: Commit the tables
         run: |
           git config user.name  "nhl-bot"
           git config user.email "nhl-bot@users.noreply.github.com"
-          git add ledger results
-          git add -f data/nhl_*.csv              # the ingest tables: this is how they reach Claude's workspace
-          git diff --cached --quiet || git commit -m "nhl: ${{ github.event_name }} $(date -u +%F)"
-          git pull --rebase && git push
+          if ls data/nhl_*.csv >/dev/null 2>&1; then git add -f data/nhl_*.csv; fi
+          if git diff --cached --quiet; then
+            echo "nothing new"
+          else
+            git commit -m "nhl data $(date -u +%F\ %H:%M)"
+            git pull --rebase
+            git push
+          fi
 
       - name: Fail the run if the ingest failed
         if: steps.ingest.outcome == 'failure'
-        run: exit 1
+        run: |
+          echo "::error::nhl_ingest.py failed; its last lines:"
+          tail -15 ingest.log || true
+          exit 1
