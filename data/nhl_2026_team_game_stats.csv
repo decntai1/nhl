@@ -667,8 +667,8 @@ game_id,season,game_type,game_date,team,opponent,is_home,goals,goals_against,goa
 2026020333,20262027,2,2026-11-17,LAK,BOS,False,3,0,3,0,0,False,22,29,29,0,4,18,16,11,2,True,True,False,W,True
 2026020334,20262027,2,2026-11-17,TBL,WSH,True,5,2,5,2,0,False,25,27,25,0,2,19,17,24,4,True,True,False,W,True
 2026020334,20262027,2,2026-11-17,WSH,TBL,False,2,5,2,5,0,False,27,25,20,0,2,21,10,18,6,False,False,False,L,False
-2026020335,20262027,2,2026-11-17,FLA,EDM,True,2,5,2,5,0,False,22,18,13,0,8,39,5,13,5,False,False,False,L,False
-2026020335,20262027,2,2026-11-17,EDM,FLA,False,5,2,5,2,0,False,18,22,20,2,4,20,12,12,3,True,True,False,W,True
+2026020335,20262027,2,2026-11-17,FLA,EDM,True,2,5,2,5,0,False,22,18,13,0,8,40,5,13,5,False,False,False,L,False
+2026020335,20262027,2,2026-11-17,EDM,FLA,False,5,2,5,2,0,False,18,22,20,2,4,19,12,12,3,True,True,False,W,True
 2026020336,20262027,2,2026-11-17,NYI,CBJ,True,5,1,5,1,0,False,41,29,28,1,0,15,16,11,6,True,True,False,W,True
 2026020336,20262027,2,2026-11-17,CBJ,NYI,False,1,5,1,5,0,False,29,41,36,0,2,18,17,20,5,False,False,False,L,False
 2026020337,20262027,2,2026-11-17,PHI,BUF,True,4,3,4,3,0,False,33,19,16,0,4,31,10,13,7,True,True,False,W,False
@@ -680,7 +680,7 @@ game_id,season,game_type,game_date,team,opponent,is_home,goals,goals_against,goa
 2026020340,20262027,2,2026-11-17,MIN,NSH,True,7,3,7,3,0,False,38,28,25,1,4,17,18,13,2,True,True,False,W,True
 2026020340,20262027,2,2026-11-17,NSH,MIN,False,3,7,3,7,0,False,28,38,31,0,6,20,10,8,6,False,False,False,L,False
 2026020341,20262027,2,2026-11-17,WPG,OTT,True,1,2,1,2,0,False,21,27,25,0,6,28,18,15,4,False,False,False,L,False
-2026020341,20262027,2,2026-11-17,OTT,WPG,False,2,1,2,1,0,False,27,21,20,1,2,21,15,12,8,True,True,False,W,True
+2026020341,20262027,2,2026-11-17,OTT,WPG,False,2,1,2,1,0,False,27,21,20,1,2,21,14,12,8,True,True,False,W,True
 2026020342,20262027,2,2026-11-17,VGK,DAL,True,3,4,3,3,0,False,27,22,18,0,4,29,14,18,5,False,False,True,OTL,True
 2026020342,20262027,2,2026-11-17,DAL,VGK,False,4,3,3,3,1,False,22,27,24,0,8,20,14,17,6,True,False,True,W,False
 2026020343,20262027,2,2026-11-17,SJS,CGY,True,2,5,2,5,0,False,23,29,24,1,22,23,9,13,4,False,False,False,L,True
