@@ -2073,3 +2073,83 @@ game_id,season,game_type,game_date,goal_no,period,period_type,time_in_period,gam
 2026020332,20262027,2,2026-11-16,3,3,REG,04:40,2680,VAN,False,8480078,Filip Chytil,8478444,Brock Boeser,,,ev,none,False,wrap-around,1,2,3
 2026020332,20262027,2,2026-11-16,4,3,REG,11:39,3099,UTA,True,8480849,Barrett Hayton,8479977,Kailer Yamamoto,8475314,Anders Lee,ev,none,False,snap,2,2,4
 2026020332,20262027,2,2026-11-16,5,3,REG,15:37,3337,VAN,False,8478444,Brock Boeser,8478498,Jake DeBrusk,8483476,Jonathan Lekkerimäki,pp,none,False,slap,2,3,8
+2026020333,20262027,2,2026-11-17,1,1,REG,15:46,946,LAK,False,8475692,Mats Zuccarello,8476979,Erik Gustafsson,8482730,Brandt Clarke,ev,none,False,wrist,0,1,2
+2026020333,20262027,2,2026-11-17,2,2,REG,16:35,2195,LAK,False,8481732,Andre Lee,8476872,Scott Laughton,,,ev,none,False,deflected,0,2,2
+2026020333,20262027,2,2026-11-17,3,3,REG,16:53,3413,LAK,False,8476979,Erik Gustafsson,8475311,Darcy Kuemper,,,ev,empty-net,True,wrist,0,3,2
+2026020334,20262027,2,2026-11-17,1,1,REG,02:11,131,TBL,True,8484770,Sam O'Reilly,8479705,Jeffrey Viel,8478010,Brayden Point,ev,none,False,wrist,1,0,1
+2026020334,20262027,2,2026-11-17,2,1,REG,10:36,636,TBL,True,8480426,Charle-Edouard D'Astous,8474590,John Carlson,8474151,Ryan McDonagh,ev,none,False,snap,2,0,4
+2026020334,20262027,2,2026-11-17,3,1,REG,13:11,791,TBL,True,8477404,Jake Guentzel,8476453,Nikita Kucherov,8474590,John Carlson,ev,none,False,wrist,3,0,12
+2026020334,20262027,2,2026-11-17,4,1,REG,16:12,972,WSH,False,8477949,Alex Tuch,8481656,Aliaksei Protas,8478911,Matt Roy,ev,none,False,snap,3,1,12
+2026020334,20262027,2,2026-11-17,5,2,REG,11:34,1894,TBL,True,8477404,Jake Guentzel,8474590,John Carlson,8476453,Nikita Kucherov,ev,none,False,tip-in,4,1,13
+2026020334,20262027,2,2026-11-17,6,3,REG,04:53,2693,WSH,False,8484186,Ryan Leonard,8476880,Tom Wilson,,,ev,none,False,wrist,4,2,8
+2026020334,20262027,2,2026-11-17,7,3,REG,17:19,3439,TBL,True,8478519,Anthony Cirelli,,,,,ev,empty-net,True,backhand,5,2,6
+2026020335,20262027,2,2026-11-17,1,1,REG,09:57,597,EDM,False,8477953,Kasperi Kapanen,8475218,Mattias Ekholm,8481617,Vasily Podkolzin,ev,none,False,wrist,0,1,6
+2026020335,20262027,2,2026-11-17,2,1,REG,16:27,987,EDM,False,8478402,Connor McDavid,8475786,Zach Hyman,8480803,Evan Bouchard,pp,none,False,wrist,0,2,13
+2026020335,20262027,2,2026-11-17,3,2,REG,08:08,1688,EDM,False,8481617,Vasily Podkolzin,8477953,Kasperi Kapanen,8477934,Leon Draisaitl,ev,none,False,snap,0,3,11
+2026020335,20262027,2,2026-11-17,4,2,REG,14:23,2063,EDM,False,8481617,Vasily Podkolzin,8477934,Leon Draisaitl,8478402,Connor McDavid,pp,none,False,snap,0,4,12
+2026020335,20262027,2,2026-11-17,5,3,REG,13:51,3231,FLA,True,8479314,Matthew Tkachuk,8477935,Sam Bennett,8480801,Brady Tkachuk,ev,none,False,snap,1,4,6
+2026020335,20262027,2,2026-11-17,6,3,REG,16:50,3410,FLA,True,8479314,Matthew Tkachuk,8477409,Carter Verhaeghe,,,ev,none,False,wrist,2,4,7
+2026020335,20262027,2,2026-11-17,7,3,REG,19:27,3567,EDM,False,8477934,Leon Draisaitl,8477450,Jason Dickinson,8477953,Kasperi Kapanen,ev,empty-net,True,backhand,2,5,21
+2026020336,20262027,2,2026-11-17,1,1,REG,19:02,1142,NYI,True,8477407,Anthony Duclair,8478445,Mathew Barzal,8477950,Tony DeAngelo,pp,none,False,wrist,1,0,5
+2026020336,20262027,2,2026-11-17,2,2,REG,01:34,1294,NYI,True,8485366,Matthew Schaefer,,,,,ev,none,False,wrist,2,0,7
+2026020336,20262027,2,2026-11-17,3,3,REG,01:12,2472,CBJ,False,8478460,Zach Werenski,8482660,Kent Johnson,8483432,Luca Del Bel Belluz,ev,none,False,wrist,2,1,3
+2026020336,20262027,2,2026-11-17,4,3,REG,07:01,2821,NYI,True,8485366,Matthew Schaefer,8477506,Ryan Pulock,8477407,Anthony Duclair,ev,none,False,backhand,3,1,8
+2026020336,20262027,2,2026-11-17,5,3,REG,11:52,3112,NYI,True,8477950,Tony DeAngelo,8478445,Mathew Barzal,8481711,Matias Maccelli,ev,none,False,backhand,4,1,2
+2026020336,20262027,2,2026-11-17,6,3,REG,16:08,3368,NYI,True,8485366,Matthew Schaefer,8481601,Simon Holmstrom,8477500,Bo Horvat,ev,empty-net,True,wrist,5,1,9
+2026020337,20262027,2,2026-11-17,1,1,REG,00:47,47,BUF,False,8480807,Mattias Samuelsson,8480839,Rasmus Dahlin,8482659,Josh Doan,ev,none,False,snap,0,1,3
+2026020337,20262027,2,2026-11-17,2,2,REG,06:39,1599,PHI,True,8482142,Jamie Drysdale,8484387,Matvei Michkov,8480220,Noah Cates,ev,none,False,snap,1,1,2
+2026020337,20262027,2,2026-11-17,3,2,REG,10:59,1859,BUF,False,8479420,Tage Thompson,8484145,Zach Benson,8482896,Tyson Kozak,ev,none,False,snap,1,2,13
+2026020337,20262027,2,2026-11-17,4,2,REG,14:30,2070,PHI,True,8480015,Owen Tippett,8482142,Jamie Drysdale,8483787,Cole Knuble,ev,none,False,tip-in,2,2,3
+2026020337,20262027,2,2026-11-17,5,3,REG,00:29,2429,PHI,True,8477948,Travis Sanheim,8477989,Christian Dvorak,8484142,Denver Barkey,ev,none,False,wrist,3,2,4
+2026020337,20262027,2,2026-11-17,6,3,REG,04:31,2671,BUF,False,8483468,Jiri Kulich,8479420,Tage Thompson,,,ev,none,False,snap,3,3,2
+2026020337,20262027,2,2026-11-17,7,3,REG,05:23,2723,PHI,True,8477989,Christian Dvorak,8476372,Nick Seeler,8484387,Matvei Michkov,ev,none,False,wrist,4,3,4
+2026020338,20262027,2,2026-11-17,1,1,REG,03:22,202,TOR,False,8484158,Easton Cowan,8479318,Auston Matthews,8478458,Jack Roslovic,ev,none,False,snap,0,1,8
+2026020338,20262027,2,2026-11-17,2,2,REG,13:17,1997,CHI,True,8483493,Frank Nazar,8483506,Sam Rinzel,,,pp,none,False,wrist,1,1,9
+2026020338,20262027,2,2026-11-17,3,2,REG,17:54,2274,CHI,True,8483493,Frank Nazar,8482062,Cole Smith,8474013,Ian Cole,ev,none,False,wrist,2,1,10
+2026020338,20262027,2,2026-11-17,4,2,REG,18:16,2296,TOR,False,8476927,Teddy Blueger,8478178,Darren Raddysh,,,ev,none,False,wrist,2,2,3
+2026020338,20262027,2,2026-11-17,5,2,REG,18:51,2331,CHI,True,8484144,Connor Bedard,8477479,Tyler Bertuzzi,8481568,Alex Vlasic,ev,none,False,wrist,3,2,7
+2026020338,20262027,2,2026-11-17,6,3,REG,09:07,2947,CHI,True,8477479,Tyler Bertuzzi,8483506,Sam Rinzel,8474141,Patrick Kane,pp,none,False,tip-in,4,2,4
+2026020338,20262027,2,2026-11-17,7,3,REG,11:09,3069,TOR,False,8475166,John Tavares,8486067,Gavin McKenna,,,ev,none,False,wrist,4,3,3
+2026020338,20262027,2,2026-11-17,8,3,REG,11:21,3081,CHI,True,8484197,Oliver Moore,8483506,Sam Rinzel,8482176,Wyatt Kaiser,ev,none,False,backhand,5,3,3
+2026020338,20262027,2,2026-11-17,9,3,REG,12:10,3130,CHI,True,8477479,Tyler Bertuzzi,8485391,Anton Frondell,,,ev,none,False,wrist,6,3,5
+2026020339,20262027,2,2026-11-17,1,1,REG,02:13,133,STL,True,8481013,Jonatan Berggren,8482111,Justin Barron,,,ev,none,False,tip-in,1,0,3
+2026020339,20262027,2,2026-11-17,2,1,REG,11:38,698,ANA,False,8473986,Alex Killorn,8485512,Tim Washe,,,ev,none,False,wrist,1,1,3
+2026020339,20262027,2,2026-11-17,3,1,REG,19:07,1147,STL,True,8481580,Connor McMichael,8482733,Logan Mailloux,8482077,Dylan Holloway,ev,none,False,bat,2,1,3
+2026020339,20262027,2,2026-11-17,4,2,REG,01:02,1262,ANA,False,8483445,Cutter Gauthier,8475798,Mikael Granlund,8481538,Judd Caulfield,ev,none,False,slap,2,2,19
+2026020339,20262027,2,2026-11-17,5,2,REG,11:41,1901,STL,True,8480023,Robert Thomas,8482111,Justin Barron,8483516,Jimmy Snuggerud,ev,none,False,wrist,3,2,4
+2026020339,20262027,2,2026-11-17,6,2,REG,13:37,2017,STL,True,8484164,Dalibor Dvorsky,8480459,Pius Suter,8475764,Cam Fowler,ev,none,False,backhand,4,2,5
+2026020339,20262027,2,2026-11-17,7,2,REG,16:19,2179,ANA,False,8483445,Cutter Gauthier,8484153,Leo Carlsson,8481605,Jackson LaCombe,pp,none,False,snap,4,3,20
+2026020339,20262027,2,2026-11-17,8,3,REG,05:36,2736,STL,True,8482089,Jake Neighbours,8480023,Robert Thomas,,,ev,none,False,wrist,5,3,5
+2026020339,20262027,2,2026-11-17,9,3,REG,06:19,2779,STL,True,8481598,Philip Broberg,8481013,Jonatan Berggren,8482733,Logan Mailloux,ev,none,False,deflected,6,3,5
+2026020339,20262027,2,2026-11-17,10,3,REG,08:34,2914,STL,True,8482733,Logan Mailloux,8480023,Robert Thomas,8482089,Jake Neighbours,ev,none,False,wrist,7,3,1
+2026020339,20262027,2,2026-11-17,11,3,REG,14:59,3299,ANA,False,8482178,Ian Moore,,,,,ev,none,False,slap,7,4,1
+2026020339,20262027,2,2026-11-17,12,3,REG,18:35,3515,ANA,False,8475798,Mikael Granlund,8483445,Cutter Gauthier,8481605,Jackson LaCombe,pp,none,False,snap,7,5,8
+2026020339,20262027,2,2026-11-17,13,3,REG,19:19,3559,ANA,False,8483445,Cutter Gauthier,8478873,Troy Terry,8481605,Jackson LaCombe,ev,none,False,wrist,7,6,21
+2026020339,20262027,2,2026-11-17,14,3,REG,19:22,3562,STL,True,8477402,Pavel Buchnevich,,,,,ev,empty-net,True,wrist,8,6,4
+2026020340,20262027,2,2026-11-17,1,1,REG,04:20,260,MIN,True,8482122,Brock Faber,8478493,Joel Eriksson Ek,8478864,Kirill Kaprizov,ev,none,False,tip-in,1,0,1
+2026020340,20262027,2,2026-11-17,2,1,REG,08:59,539,MIN,True,8476399,Blake Coleman,8474716,Jared Spurgeon,8480800,Quinn Hughes,ev,none,False,deflected,2,0,7
+2026020340,20262027,2,2026-11-17,3,1,REG,17:56,1076,MIN,True,8485702,Maxim Shabanov,8474716,Jared Spurgeon,8478508,Yakov Trenin,ev,none,False,slap,3,0,9
+2026020340,20262027,2,2026-11-17,4,1,REG,18:39,1119,MIN,True,8481557,Matt Boldy,8480800,Quinn Hughes,8478493,Joel Eriksson Ek,ev,none,False,wrist,4,0,11
+2026020340,20262027,2,2026-11-17,5,2,REG,00:59,1259,MIN,True,8481557,Matt Boldy,8478864,Kirill Kaprizov,8478493,Joel Eriksson Ek,pp,none,False,snap,5,0,12
+2026020340,20262027,2,2026-11-17,6,2,REG,01:52,1312,NSH,False,8479980,Nicolas Hague,8474564,Steven Stamkos,,,ev,none,False,wrist,5,1,1
+2026020340,20262027,2,2026-11-17,7,2,REG,02:09,1329,MIN,True,8475220,Marcus Foligno,8473422,Nick Foligno,,,ev,none,False,wrist,6,1,1
+2026020340,20262027,2,2026-11-17,8,2,REG,07:13,1633,NSH,False,8476539,Jonathan Marchessault,8477021,Alexander Kerfoot,8483513,Reid Schaefer,ev,none,False,snap,6,2,3
+2026020340,20262027,2,2026-11-17,9,2,REG,18:41,2321,NSH,False,8476887,Filip Forsberg,8479980,Nicolas Hague,,,ev,none,False,snap,6,3,8
+2026020340,20262027,2,2026-11-17,10,2,REG,19:55,2395,MIN,True,8478493,Joel Eriksson Ek,8481557,Matt Boldy,8478864,Kirill Kaprizov,ev,none,False,tip-in,7,3,7
+2026020341,20262027,2,2026-11-17,1,2,REG,03:06,1386,OTT,False,8480208,Drake Batherson,8483676,Stephen Halliday,8482116,Tim Stützle,pp,none,False,snap,0,1,11
+2026020341,20262027,2,2026-11-17,2,2,REG,04:04,1444,OTT,False,8482674,Tyler Boucher,8478469,Thomas Chabot,,,ev,none,False,wrist,0,2,1
+2026020341,20262027,2,2026-11-17,3,2,REG,09:24,1764,WPG,True,8486025,Viggo Björck,8476392,Adam Lowry,,,ev,none,False,snap,1,2,1
+2026020342,20262027,2,2026-11-17,1,2,REG,00:40,1240,VGK,True,8476448,William Karlsson,8484803,Trevor Connelly,8478468,Jeremy Lauzon,ev,none,False,wrist,1,0,4
+2026020342,20262027,2,2026-11-17,2,3,REG,10:27,3027,VGK,True,8476448,William Karlsson,8484803,Trevor Connelly,,,ev,none,False,wrist,2,0,5
+2026020342,20262027,2,2026-11-17,3,3,REG,10:59,3059,DAL,False,8480878,Nils Lundkvist,8478420,Mikko Rantanen,8478449,Roope Hintz,ev,none,False,snap,2,1,1
+2026020342,20262027,2,2026-11-17,4,3,REG,12:43,3163,VGK,True,8479353,Brett Howden,8478403,Jack Eichel,8475188,Brayden McNabb,ev,none,False,wrist,3,1,7
+2026020342,20262027,2,2026-11-17,5,3,REG,18:42,3522,DAL,False,8482740,Wyatt Johnston,8478449,Roope Hintz,8478420,Mikko Rantanen,ev,none,False,wrist,3,2,6
+2026020342,20262027,2,2026-11-17,6,3,REG,19:55,3595,DAL,False,8478420,Mikko Rantanen,8480027,Jason Robertson,8475794,Tyler Seguin,ev,none,False,wrist,3,3,10
+2026020342,20262027,2,2026-11-17,7,OT,OT,03:36,3816,DAL,False,8480036,Miro Heiskanen,8478420,Mikko Rantanen,8480027,Jason Robertson,ev,none,False,wrist,3,4,4
+2026020343,20262027,2,2026-11-17,1,1,REG,03:53,233,SJS,True,8478874,Adam Gaudette,8478975,Mason Marchment,8485402,Michael Misa,ev,none,False,snap,1,0,2
+2026020343,20262027,2,2026-11-17,2,1,REG,05:09,309,CGY,False,8482679,Matt Coronato,8480797,Joel Farabee,8474150,Mikael Backlund,ev,none,False,wrist,1,1,5
+2026020343,20262027,2,2026-11-17,3,1,REG,19:22,1162,CGY,False,8481028,Martin Pospisil,8482165,Yan Kuznetsov,8484768,Zayne Parekh,ev,none,False,backhand,1,2,4
+2026020343,20262027,2,2026-11-17,4,2,REG,01:19,1279,CGY,False,8483495,Simon Nemec,8483609,Adam Klapka,8476458,Ryan Strome,pp,none,False,wrist,1,3,1
+2026020343,20262027,2,2026-11-17,5,3,REG,04:15,2655,CGY,False,8484154,Jonathan Castagna,8484234,Aydar Suniev,8484958,Maxim Tsyplakov,ev,none,False,bat,1,4,1
+2026020343,20262027,2,2026-11-17,6,3,REG,15:22,3322,SJS,True,8478975,Mason Marchment,8475726,Tyler Toffoli,8484227,Will Smith,pp,none,False,deflected,2,4,6
+2026020343,20262027,2,2026-11-17,7,3,REG,19:00,3540,CGY,False,8484154,Jonathan Castagna,8481028,Martin Pospisil,8476458,Ryan Strome,ev,empty-net,True,backhand,2,5,2
