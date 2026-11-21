@@ -12496,7 +12496,7 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020348,20262027,2,2026-11-19,8480208,OTT,PHI,True,Drake Batherson,D. Batherson,R,19,True,1,1,2,1,1,0,1,0,1,24,0,0,0.0,17:12,1032,False,False
 2026020348,20262027,2,2026-11-19,8481528,OTT,PHI,True,Dylan Cozens,D. Cozens,C,24,True,2,0,2,4,1,0,1,0,0,26,2,2,0.428571,18:08,1088,False,False
 2026020348,20262027,2,2026-11-19,8480188,OTT,PHI,True,Fabian Zetterlund,F. Zetterlund,L,20,True,0,1,1,4,1,0,2,2,0,20,2,0,0.0,13:49,829,False,False
-2026020348,20262027,2,2026-11-19,8482105,OTT,PHI,True,Jake Sanderson,J. Sanderson,D,85,True,0,1,1,0,-1,0,0,0,0,31,0,0,0.0,23:28,1408,False,False
+2026020348,20262027,2,2026-11-19,8482105,OTT,PHI,True,Jake Sanderson,J. Sanderson,D,85,True,0,1,1,0,-1,0,0,0,0,30,0,0,0.0,23:26,1406,False,False
 2026020348,20262027,2,2026-11-19,8481606,OTT,PHI,True,Jordan Spence,J. Spence,D,10,True,0,0,0,0,0,4,0,2,0,24,0,0,0.0,19:28,1168,False,False
 2026020348,20262027,2,2026-11-19,8478020,OTT,PHI,True,Michael Amadio,M. Amadio,R,22,True,0,0,0,1,0,0,1,1,0,25,0,0,0.0,14:36,876,False,False
 2026020348,20262027,2,2026-11-19,8484321,OTT,PHI,True,Nikolas Matinpalo,N. Matinpalo,D,33,True,0,0,0,1,1,2,0,0,0,24,3,0,0.0,14:44,884,False,False
@@ -12508,7 +12508,7 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020348,20262027,2,2026-11-19,8478469,OTT,PHI,True,Thomas Chabot,T. Chabot,D,72,True,0,0,0,1,0,0,1,1,0,26,2,0,0.0,21:51,1311,False,False
 2026020348,20262027,2,2026-11-19,8482116,OTT,PHI,True,Tim Stützle,T. Stützle,C,18,True,0,2,2,1,0,0,3,1,0,31,2,0,0.727273,24:26,1466,False,False
 2026020348,20262027,2,2026-11-19,8482674,OTT,PHI,True,Tyler Boucher,T. Boucher,R,54,True,0,0,0,1,-1,0,2,0,0,10,0,0,0.0,06:28,388,False,False
-2026020348,20262027,2,2026-11-19,8482095,OTT,PHI,True,Tyler Kleven,T. Kleven,D,43,True,0,0,0,1,1,2,1,0,0,27,0,0,0.0,17:31,1051,False,False
+2026020348,20262027,2,2026-11-19,8482095,OTT,PHI,True,Tyler Kleven,T. Kleven,D,43,True,0,0,0,1,1,2,1,0,0,27,0,0,0.0,17:33,1053,False,False
 2026020348,20262027,2,2026-11-19,8481546,PHI,OTT,False,Cam York,C. York,D,8,True,2,0,2,3,1,0,2,3,1,26,0,0,0.0,21:52,1312,False,False
 2026020348,20262027,2,2026-11-19,8477989,PHI,OTT,False,Christian Dvorak,C. Dvorak,C,22,True,0,1,1,1,-1,0,1,0,0,26,1,0,0.285714,19:14,1154,False,False
 2026020348,20262027,2,2026-11-19,8483787,PHI,OTT,False,Cole Knuble,C. Knuble,R,54,True,0,0,0,0,-2,0,0,1,0,16,0,0,0.0,11:01,661,False,False
@@ -12756,12 +12756,12 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020355,20262027,2,2026-11-19,8474150,CGY,MIN,True,Mikael Backlund,M. Backlund,C,11,True,0,0,0,0,-1,0,0,0,0,19,2,0,0.428571,17:08,1028,False,False
 2026020355,20262027,2,2026-11-19,8480028,CGY,MIN,True,Morgan Frost,M. Frost,C,16,True,0,1,1,2,1,0,1,2,0,19,0,0,0.571429,16:18,978,False,False
 2026020355,20262027,2,2026-11-19,8476458,CGY,MIN,True,Ryan Strome,R. Strome,C,22,True,0,0,0,2,-1,0,0,0,0,19,1,0,1.0,14:11,851,False,False
-2026020355,20262027,2,2026-11-19,8483495,CGY,MIN,True,Simon Nemec,S. Nemec,D,71,True,1,0,1,3,0,0,0,3,0,25,2,1,0.0,21:36,1296,False,False
+2026020355,20262027,2,2026-11-19,8483495,CGY,MIN,True,Simon Nemec,S. Nemec,D,71,True,1,0,1,3,0,0,0,1,0,25,2,1,0.0,21:36,1296,False,False
 2026020355,20262027,2,2026-11-19,8482165,CGY,MIN,True,Yan Kuznetsov,Y. Kuznetsov,D,37,True,0,0,0,2,0,0,0,0,0,21,1,0,0.0,16:57,1017,False,False
 2026020355,20262027,2,2026-11-19,8481068,CGY,MIN,True,Yegor Sharangovich,Y. Sharangovich,C,17,True,0,0,0,1,0,0,1,0,0,22,0,0,1.0,17:27,1047,False,False
 2026020355,20262027,2,2026-11-19,8480727,CGY,MIN,True,Zach Whitecloud,Z. Whitecloud,D,28,True,0,0,0,1,-3,2,1,1,0,23,0,0,0.0,21:54,1314,False,False
 2026020355,20262027,2,2026-11-19,8484768,CGY,MIN,True,Zayne Parekh,Z. Parekh,D,19,True,0,0,0,2,0,2,0,1,0,22,5,0,0.0,20:05,1205,False,False
-2026020355,20262027,2,2026-11-19,8476399,MIN,CGY,False,Blake Coleman,B. Coleman,L,20,True,0,0,0,3,-1,0,2,1,0,21,1,1,0.0,15:19,919,False,False
+2026020355,20262027,2,2026-11-19,8476399,MIN,CGY,False,Blake Coleman,B. Coleman,L,20,True,0,0,0,2,-1,0,2,1,0,21,1,1,0.0,15:19,919,False,False
 2026020355,20262027,2,2026-11-19,8481553,MIN,CGY,False,Bobby Brink,B. Brink,R,10,True,0,0,0,1,-1,0,1,0,0,16,1,1,1.0,10:48,648,False,False
 2026020355,20262027,2,2026-11-19,8482122,MIN,CGY,False,Brock Faber,B. Faber,D,7,True,0,0,0,1,0,0,0,0,0,24,2,0,0.0,25:26,1526,False,False
 2026020355,20262027,2,2026-11-19,8483525,MIN,CGY,False,Danila Yurov,D. Yurov,R,22,True,0,0,0,1,0,0,0,1,0,16,1,0,0.444444,14:58,898,False,False
@@ -12783,7 +12783,7 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020356,20262027,2,2026-11-19,8484762,ANA,COL,False,Beckett Sennecke,B. Sennecke,R,45,True,0,0,0,0,-2,0,0,0,0,19,2,0,0.0,17:51,1071,False,False
 2026020356,20262027,2,2026-11-19,8483445,ANA,COL,False,Cutter Gauthier,C. Gauthier,L,61,True,0,0,0,3,-2,0,3,1,0,23,2,0,0.0,21:03,1263,False,False
 2026020356,20262027,2,2026-11-19,8478366,ANA,COL,False,Frank Vatrano,F. Vatrano,R,77,True,0,0,0,1,0,0,1,1,0,12,0,0,0.0,08:32,512,False,False
-2026020356,20262027,2,2026-11-19,8482178,ANA,COL,False,Ian Moore,I. Moore,D,3,True,0,0,0,4,-2,0,1,2,0,29,1,0,0.0,17:59,1079,False,False
+2026020356,20262027,2,2026-11-19,8482178,ANA,COL,False,Ian Moore,I. Moore,D,3,True,0,0,0,5,-2,0,1,2,0,29,1,0,0.0,17:59,1079,False,False
 2026020356,20262027,2,2026-11-19,8481605,ANA,COL,False,Jackson LaCombe,J. LaCombe,D,2,True,0,0,0,3,-2,0,1,1,0,26,1,0,0.0,22:17,1337,False,False
 2026020356,20262027,2,2026-11-19,8482408,ANA,COL,False,Jeff Malott,J. Malott,L,39,True,0,0,0,0,-1,0,3,2,0,17,1,0,1.0,11:26,686,False,False
 2026020356,20262027,2,2026-11-19,8481538,ANA,COL,False,Judd Caulfield,J. Caulfield,R,28,True,0,0,0,1,-1,0,2,0,0,19,1,0,0.0,12:29,749,False,False
@@ -12792,7 +12792,7 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020356,20262027,2,2026-11-19,8481754,ANA,COL,False,Nikita Nesterenko,N. Nesterenko,C,13,True,0,0,0,3,0,2,0,0,0,13,1,0,0.5,08:56,536,False,False
 2026020356,20262027,2,2026-11-19,8483521,ANA,COL,False,Noah Warren,N. Warren,D,47,True,0,0,0,0,0,2,2,0,0,18,2,0,0.0,12:33,753,False,False
 2026020356,20262027,2,2026-11-19,8483490,ANA,COL,False,Pavel Mintyukov,P. Mintyukov,D,98,True,0,0,0,2,0,0,0,2,0,24,0,1,0.0,17:30,1050,False,False
-2026020356,20262027,2,2026-11-19,8485400,ANA,COL,False,Roger McQueen,R. McQueen,C,95,True,0,0,0,1,0,0,2,0,0,14,0,0,0.428571,10:55,655,False,False
+2026020356,20262027,2,2026-11-19,8485400,ANA,COL,False,Roger McQueen,R. McQueen,C,95,True,0,0,0,2,0,0,2,0,0,14,0,0,0.428571,10:55,655,False,False
 2026020356,20262027,2,2026-11-19,8484859,ANA,COL,False,Stian Solberg,S. Solberg,D,50,True,0,0,0,1,-1,0,1,5,0,22,4,0,0.0,18:23,1103,False,False
 2026020356,20262027,2,2026-11-19,8485512,ANA,COL,False,Tim Washe,T. Washe,C,42,True,0,0,0,0,0,0,3,1,0,23,0,0,0.578947,16:35,995,False,False
 2026020356,20262027,2,2026-11-19,8483482,ANA,COL,False,Tristan Luneau,T. Luneau,D,67,True,0,0,0,1,-1,2,0,0,0,26,1,0,0.0,25:12,1512,False,False
@@ -12818,7 +12818,7 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020357,20262027,2,2026-11-19,8476457,SEA,VAN,True,Adam Larsson,A. Larsson,D,6,True,0,0,0,1,2,0,2,1,0,24,0,0,0.0,20:04,1204,False,False
 2026020357,20262027,2,2026-11-19,8483570,SEA,VAN,True,Ben Meyers,B. Meyers,C,59,True,0,0,0,1,0,0,4,0,0,14,1,0,0.0,08:37,517,False,False
 2026020357,20262027,2,2026-11-19,8484800,SEA,VAN,True,Berkly Catton,B. Catton,C,27,True,3,0,3,4,2,0,0,0,1,20,2,2,0.375,15:17,917,True,True
-2026020357,20262027,2,2026-11-19,8482259,SEA,VAN,True,Bobby McMann,B. McMann,C,74,True,0,0,0,2,1,2,3,0,0,20,0,0,0.0,16:15,975,False,False
+2026020357,20262027,2,2026-11-19,8482259,SEA,VAN,True,Bobby McMann,B. McMann,C,74,True,0,0,0,3,1,2,3,0,0,20,0,0,0.0,16:15,975,False,False
 2026020357,20262027,2,2026-11-19,8477986,SEA,VAN,True,Brandon Montour,B. Montour,D,62,True,0,2,2,2,1,0,0,2,0,23,1,0,0.0,24:06,1446,False,False
 2026020357,20262027,2,2026-11-19,8476905,SEA,VAN,True,Chandler Stephenson,C. Stephenson,C,9,True,0,0,0,2,1,0,2,0,0,22,1,1,0.769231,21:53,1313,False,False
 2026020357,20262027,2,2026-11-19,8477919,SEA,VAN,True,Frederick Gaudreau,F. Gaudreau,C,89,True,0,1,1,0,1,2,0,0,0,20,1,0,0.588235,18:05,1085,False,False
@@ -12829,7 +12829,7 @@ game_id,season,game_type,game_date,player_id,team,opponent,is_home,player_name,p
 2026020357,20262027,2,2026-11-19,8482713,SEA,VAN,True,Mackie Samoskevich,M. Samoskevich,R,11,True,0,1,1,4,1,0,1,0,0,18,1,0,0.0,16:31,991,False,False
 2026020357,20262027,2,2026-11-19,8484241,SEA,VAN,True,Matthew Wood,M. Wood,R,71,True,0,1,1,2,0,0,0,0,0,13,0,0,0.555556,06:34,394,False,False
 2026020357,20262027,2,2026-11-19,8482665,SEA,VAN,True,Matty Beniers,M. Beniers,C,10,True,1,1,2,7,1,0,1,0,0,20,0,1,0.416667,19:35,1175,False,False
-2026020357,20262027,2,2026-11-19,8479324,SEA,VAN,True,Ryan Lindgren,R. Lindgren,D,55,True,0,0,0,1,1,0,1,2,0,17,1,0,0.0,15:10,910,False,False
+2026020357,20262027,2,2026-11-19,8479324,SEA,VAN,True,Ryan Lindgren,R. Lindgren,D,55,True,0,0,0,1,1,0,1,3,0,17,1,0,0.0,15:10,910,False,False
 2026020357,20262027,2,2026-11-19,8482751,SEA,VAN,True,Ryan Winterton,R. Winterton,C,26,True,0,0,0,4,0,0,2,2,0,20,1,0,0.0,19:39,1179,False,False
 2026020357,20262027,2,2026-11-19,8482858,SEA,VAN,True,Ryker Evans,R. Evans,D,41,True,0,0,0,1,1,0,0,3,0,21,0,0,0.0,22:25,1345,False,False
 2026020357,20262027,2,2026-11-19,8478407,SEA,VAN,True,Vince Dunn,V. Dunn,D,29,True,0,1,1,2,1,0,0,1,0,22,1,2,0.0,21:43,1303,False,False
