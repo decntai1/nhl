@@ -11,6 +11,9 @@ stdlib + numpy + pandas + tabulate. Spec: NHL_SYSTEM.md (same folder).
     python nhl_system.py results --date 2026-11-17 --ingest data --out results/2026-11-17.txt
     python nhl_system.py grade   --date 2026-11-17 --results results/2026-11-17.txt
     python nhl_system.py report  [--test-night 2026-11-30]
+    python nhl_system.py arms                                     # the bandit's view of each kind of leg
+    python nhl_system.py compare --date 2026-11-23 --ingest data  # both teams' stats side by side, with the book
+    python nhl_system.py sync    --ingest data                    # grade every night that has new finished games
 
 Everything is stored in nhl.sqlite next to this file (override: NHL_DB=path).
 Principles: the book is the anchor (p = calibrated book price + w * lean); every number carries its n; games, not
@@ -33,7 +36,7 @@ import numpy as np
 import pandas as pd
 
 DB = os.environ.get("NHL_DB", str(Path(__file__).with_name("nhl.sqlite")))
-MODEL_VERSION = "nhl-0.4"
+MODEL_VERSION = "nhl-0.7"
 API = "https://api-web.nhle.com/v1"
 # word that means "goals" in a market name. 'gólpassz' is an assist, so it is excluded.
 GOAL = re.compile(os.environ.get("NHL_GOAL_WORD", r"g[oó]l(?!passz)"), re.I)
@@ -41,10 +44,18 @@ PERIOD = re.compile(r"(\d)\.\s*harmad", re.I)                 # '1. harmad' = 1s
 START_W = {"main": 0.05, "period": 0.0, "player": 0.0, "other": 0.0}      # model weight before any refit
 LEAN_CAP, MIN_GAMES, GATE_N = 0.05, 30, 300
 LEG_P, LEG_MIN_ODDS = (0.60, 0.88), 1.15         # slip legs: win chance band and lowest price
+ARM_K0 = 300      # bandit prior: worth this many games of "the arm pays what its price says". Simulation: with 50, arms of
+#                   a book with NO edge moved +-6 points after 400 games; with 300 they move +-2 and a real +4-point arm
+#                   is the top arm in 3 of 3 runs only by ~1,300 games. Nothing learns this faster.
 CAL_GAMES, DECIDE_GAMES = 100, 300               # graded games before the first read / before a verdict
 TIE_K = 1.45        # tie cells of the score grid x this: independent Poisson gives ~16.5% regulation draws, the NHL has
 #                     had ~22-23% for years (teams play for the point late). `teams --ingest` prints this season's share.
-HOME_ICE, B2B, REGRESS_GP = 1.04, 0.96, 25       # goal-rate multipliers; games of league average mixed in
+# Checked on the first 330 games of 2026-27 (2026-11-16): 22.4% level after 60 min (TIE_K gives 22.3%); home / away
+# regulation goals 3.08 / 3.03, ratio 1.016 +- 0.04, so home ice is cut from 1.04 to 1.025 per side (ratio 1.05, the
+# long-run size); period shares 30.0 / 35.3 / 34.7%; back-to-back teams scored 2.68 against 3.11 (78 team-games,
+# mixed up with travel and team quality): 0.96 kept.
+HOME_ICE, B2B, REGRESS_GP = 1.025, 0.96, 25
+PERIOD_SHARE = {"P1": 0.30, "P2": 0.35, "P3": 0.35}       # goal-rate multipliers; games of league average mixed in
 # odd typeIds are the sportsbook's own selection codes (same in every sport on this site)
 HOME, DRAW, AWAY, OVER, UNDER, HCP_H, HCP_A, ODD, EVEN, YES, NO = 1, 2, 3, 12, 13, 1714, 1715, 70, 72, 74, 76
 
@@ -54,6 +65,9 @@ CREATE TABLE IF NOT EXISTS predictions (night TEXT, row_key TEXT, game TEXT, hom
   p_model REAL, p REAL, w_used REAL, p_method TEXT, overround REAL, captured TEXT, model_version TEXT,
   status TEXT DEFAULT 'open', result TEXT, actual REAL, p_cal REAL, PRIMARY KEY (night, row_key));
 CREATE TABLE IF NOT EXISTS weights (as_of TEXT, family TEXT, games INTEGER, w_fit REAL, w_se REAL, w_used REAL);
+CREATE TABLE IF NOT EXISTS lean_legs (night TEXT, game TEXT, kind TEXT, agree INTEGER, strong INTEGER, p REAL, odds REAL,
+  y REAL, PRIMARY KEY (night, game, kind, agree, p, odds));
+CREATE TABLE IF NOT EXISTS synced (night TEXT, game TEXT, PRIMARY KEY (night, game));
 CREATE TABLE IF NOT EXISTS calib (as_of TEXT, games INTEGER, a REAL, b REAL);
 CREATE TABLE IF NOT EXISTS slips (night TEXT, slip_id TEXT, target REAL, odds REAL, p REAL, ev REAL, legs INTEGER,
   built TEXT, status TEXT DEFAULT 'open', result TEXT, paid REAL, PRIMARY KEY (night, slip_id));
@@ -95,8 +109,13 @@ def _line(o: dict):
         return float(m.group(1).replace(",", ".")) if m else None
 
 
+BOOK_CODE = {"LA": "LAK", "NJ": "NJD", "SJ": "SJS", "TB": "TBL", "VEG": "VGK", "WAS": "WSH", "MON": "MTL",
+             "NAS": "NSH", "CLB": "CBJ", "CAL": "CGY", "WIN": "WPG", "UTAH": "UTA"}     # the book's code -> the NHL's
+
+
 def abbr(c: dict) -> str:
-    return (c.get("abbreviation") or "".join(w[0] for w in c["name"].split())[:3]).upper()
+    a = (c.get("abbreviation") or "".join(w[0] for w in c["name"].split())[:3]).upper()
+    return BOOK_CODE.get(a, a)
 
 
 def classify(name: str, tids: set, teams: tuple[str, str], player: bool) -> tuple[str, str, int, str | None]:
@@ -203,8 +222,11 @@ def board_rows(path) -> list[dict]:
                 side = "1X" if (h and x and not a) else "X2" if (a and x and not h) else "12" if (h and a) else None
             if side is None and typ_o != "UNPARSED":
                 typ_o = "UNPARSED"
-            key = hashlib.md5(f"{m['id']}|{o['id']}|{nm}".encode()).hexdigest()[:16]
-            rows.append(dict(row_key=key, game=f"{away}@{home}", home=home, away=away, market=parent_name, type=typ_o,
+            # the key is the bet in words, not the book's ids: the book re-issues ids when it re-opens a market, and a
+            # second capture must land on the same row (found on 2026-11-17: 3 of 19 slip legs "vanished" by id only)
+            key = hashlib.md5(f"{away}@{home}|{parent_name}|{who or ''}|{nm}".encode()).hexdigest()[:16]
+            id_key = hashlib.md5(f"{m['id']}|{o['id']}|{nm}".encode()).hexdigest()[:16]
+            rows.append(dict(row_key=key, id_key=id_key, game=f"{away}@{home}", home=home, away=away, market=parent_name, type=typ_o,
                              scope=scope, ot=ot, subject=subject, selection=nm, side=side, line=line,
                              odds=shown(o["price"]), mid=m["id"], captured=captured))
 
@@ -255,15 +277,17 @@ def team_rates(teams_csv: str) -> tuple[dict, float]:
     k = t.gp / (t.gp + REGRESS_GP)
     t["att"] = 1 + k * (t[f] / t.gp / lg - 1)
     t["dfn"] = 1 + k * (t[a] / t.gp / lg - 1)
+    if "reg" not in t.columns:
+        lg *= 0.97                                            # totals with overtime goals in them: ~3% are scored in OT
     return {r.team.upper(): (r.att, r.dfn) for r in t.itertuples()}, lg
 
 
-def score_grid(lh: float, la: float, n: int = 13) -> np.ndarray:
+def score_grid(lh: float, la: float, n: int = 13, tie_k: float | None = None) -> np.ndarray:
     k = np.arange(n)
     fact = np.array([math.factorial(int(i)) for i in k], dtype=float)
     ph, pa = np.exp(-lh) * lh ** k / fact, np.exp(-la) * la ** k / fact
     G = np.outer(ph, pa)
-    G[np.arange(n), np.arange(n)] *= TIE_K
+    G[np.arange(n), np.arange(n)] *= TIE_K if tie_k is None else tie_k
     return G / G.sum()
 
 
@@ -272,8 +296,10 @@ def model_p(r, lh: float, la: float) -> float | None:
     Overtime: a regulation tie is split by relative strength (lh/(lh+la)), shrunk halfway to a coin flip (3-on-3
     and shootouts are close to random); the OT winner gets exactly one extra goal."""
     if r.scope != "G":
-        lh, la = lh / 3, la / 3
-    G = score_grid(lh, la)
+        lh, la = lh * PERIOD_SHARE.get(r.scope, 1 / 3), la * PERIOD_SHARE.get(r.scope, 1 / 3)
+    # tie inflation is a full-game effect (teams play for the point late); single periods are plain Poisson. Measured
+    # on 343 games: tied periods 33.5 / 26.8 / 24.2%, plain Poisson 32.6 / 29.4 / 29.5%, with TIE_K 41 / 38 / 38%.
+    G = score_grid(lh, la, tie_k=None if r.scope == "G" else 1.0)
     n = G.shape[0]
     H, A = np.meshgrid(np.arange(n), np.arange(n), indexing="ij")
     tie = (H == A)
@@ -367,8 +393,7 @@ def price(night: str, boards: str, teams_csv: str | None, b2b: set, con) -> pd.D
     B = B.drop_duplicates(["game", "row_key"], keep="last")
     B["p_model"] = np.nan
     if teams_csv:
-        rates, lg = team_rates(teams_csv)
-        lg_reg = lg * 0.97                                    # share of goals scored in regulation (rest: OT)
+        rates, lg_reg = team_rates(teams_csv)                 # league regulation goals per team per game
         for g, x in B.groupby("game"):
             h, a = x.home.iloc[0], x.away.iloc[0]
             if h not in rates or a not in rates:
@@ -442,8 +467,13 @@ def read_results(path: str) -> tuple[dict, list[str]]:
                 nm, v = rest.rsplit(":", 1)
                 gl, ast, sog, *more = (int(x) for x in v.split())      # optional 4th, 5th: blocked shots, hits
                 assert len(more) in (0, 2)
-                games[g]["sk"][nm.strip()] = dict(team=t, goals=gl, ast=ast, pts=gl + ast, sog=sog,
-                                                  blk=more[0] if more else None, hits=more[1] if more else None)
+                nm, sk = nm.strip(), games[g]["sk"]
+                if nm in sk or f"{nm} #1" in sk:               # two players with one name in a game (Vancouver's two
+                    if nm in sk:                               # Elias Petterssons): both kept for the goal count, and
+                        sk[f"{nm} #1"] = sk.pop(nm)            # _find() sees two candidates and settles neither
+                    nm = f"{nm} #{sum(k.startswith(nm + ' #') for k in sk) + 1}"
+                sk[nm] = dict(team=t, goals=gl, ast=ast, pts=gl + ast, sog=sog,
+                              blk=more[0] if more else None, hits=more[1] if more else None)
         except Exception as e:
             errs.append(f"line {n}: {ln!r} ({e})")
     for g, d in games.items():
@@ -477,10 +507,15 @@ def _find(pool: dict, name: str):
     if "," in name:
         name = " ".join(reversed([x.strip() for x in name.split(",", 1)]))
     n = _norm(name)
-    hit = [v for k, v in pool.items() if _norm(k) == n]
-    if len(hit) != 1 and n:
-        hit = [v for k, v in pool.items() if _norm(k).split()[-1:] == n.split()[-1:] and _norm(k)[:1] == n[:1]]
-    return hit[0] if len(hit) == 1 else None
+    for n in (n, " ".join(n.split()[1:] + n.split()[:1])):       # the board also writes 'Yurov Danila' (surname first)
+        hit = [v for k, v in pool.items() if _norm(k) == n]
+        if len(hit) != 1 and n:
+            hit = [v for k, v in pool.items() if _norm(k).split()[-1:] == n.split()[-1:] and _norm(k)[:1] == n[:1]]
+        if len(hit) == 1:
+            return hit[0]
+        if len(hit) > 1:                                          # two candidates: never guess, and do not try the other order
+            return None
+    return None
 
 
 def settle(r, d: dict) -> tuple[str | None, float | None]:
@@ -564,6 +599,68 @@ def grade(night: str, results: str, con) -> None:
     grade_slips(night, con)
 
 
+# ------------------------------------------------------------------ bandit over leg types
+def arm_of(t: str, scope: str, p: float) -> str:
+    kind = "period" if scope != "G" else {"HANDICAP": "puck_line", "ML": "winner", "1X2": "winner", "TOTAL": "total",
+                                          "TEAM_TOTAL": "team_goals", "BTTS": "team_goals", "BTTS2": "team_goals"}.get(t, "other")
+    return f"{kind} {'60-75' if p < 0.75 else '75-88'}"
+
+
+def _legs_only(P: pd.DataFrame) -> pd.DataFrame:
+    fam = pd.Series([family(t, s) for t, s in zip(P.type, P.scope)], index=P.index)
+    P = P[(P.p_method == "no_vig") & P.p.between(*LEG_P) & (P.odds >= LEG_MIN_ODDS) & ~P.type.isin(["UNPARSED", "DNB"])
+          & (fam != "player")].copy()
+    P["arm"] = [arm_of(t, s, p) for t, s, p in zip(P.type, P.scope, P.p)]
+    return P
+
+
+def arms(con) -> pd.DataFrame:
+    """One arm = a kind of leg x a probability band. The ledger grades EVERY candidate leg on the board, picked or
+    not, so every arm is observed every night: there is nothing to explore, and the slips simply follow the
+    posterior mean (a Thompson draw would only add noise). Per arm, in flat return per game:
+      prior      = what the book's own price implies (minus its margin), worth ARM_K0 games
+      posterior  = (ARM_K0 * prior + games * observed) / (ARM_K0 + games), sd = spread / sqrt(ARM_K0 + games)
+      shift      = posterior - prior: how much better or worse than its price the arm has paid. `slips` adds it."""
+    A = _legs_only(pd.read_sql("SELECT * FROM predictions", con))
+    if A.empty:
+        return pd.DataFrame(columns=["arm", "rows", "games", "prior", "observed", "posterior", "sd", "shift", "p_best"])
+    A["implied"] = A.p_book * A.odds - 1
+    T = A.groupby("arm").agg(prior=("implied", "mean")).reset_index()
+    D = A[(A.status == "graded") & A.result.isin(["won", "lost"])].copy()
+    D["ret"] = (D.result == "won") * D.odds - 1
+    g = D.groupby(["arm", D.night + "|" + D.game]).ret.mean().reset_index()
+    o = g.groupby("arm").ret.agg(games="size", observed="mean", spread="std").reset_index()
+    T = T.merge(o, on="arm", how="left").merge(D.groupby("arm").size().rename("rows").reset_index(), on="arm", how="left")
+    T[["games", "rows"]] = T[["games", "rows"]].fillna(0).astype(int)
+    sig = T.spread.where(T.games >= 10, 0.5).fillna(0.5).clip(lower=0.3)      # ten straight wins are not a spread of zero
+    T["posterior"] = (ARM_K0 * T.prior + T.games * T.observed.fillna(0)) / (ARM_K0 + T.games)
+    T["sd"] = sig / np.sqrt(ARM_K0 + T.games)
+    T["shift"] = (T.posterior - T.prior).clip(-0.10, 0.10)
+    draws = np.random.default_rng(0).normal(T.posterior.values, T.sd.values, size=(20000, len(T)))
+    T["p_best"] = np.bincount(draws.argmax(axis=1), minlength=len(T)) / 20000
+    return T[["arm", "rows", "games", "prior", "observed", "posterior", "sd", "shift", "p_best"]].sort_values("posterior", ascending=False)
+
+
+def stat_arms(con) -> pd.DataFrame:
+    """The team-stat comparison as bandit arms: graded game lines the book priced 40-60%, split by whether the stats
+    sheet (teamstats.py, games before the night only) pointed the same way. Same prior as the other arms."""
+    D = pd.read_sql("SELECT * FROM lean_legs WHERE p BETWEEN 0.40 AND 0.60", con)
+    if D.empty:
+        return pd.DataFrame()
+    D["arm"] = D.kind + np.where(D.agree == 1, " | stats agree", " | stats disagree")
+    D["ret"] = D.y * D.odds - 1
+    D["implied"] = D.p * D.odds - 1
+    rows = []
+    for arm, x in D.groupby("arm"):
+        g = x.groupby(x.night + x.game).ret.mean()
+        prior, n = x.implied.mean(), len(g)
+        sig = max(float(g.std(ddof=1)) if n >= 10 else 0.5, 0.3)
+        post = (ARM_K0 * prior + n * g.mean()) / (ARM_K0 + n)
+        rows.append(dict(arm=arm, bets=len(x), games=n, prior=prior, observed=g.mean(), posterior=post,
+                         sd=sig / math.sqrt(ARM_K0 + n), shift=float(np.clip(post - prior, -0.1, 0.1))))
+    return pd.DataFrame(rows).sort_values("posterior", ascending=False)
+
+
 # ------------------------------------------------------------------ slips: built by rule, stored, graded
 def leg_pool(night: str, con, players: bool = False, exclude=()) -> pd.DataFrame:
     """Legs a slip may use: two-way priced (margin removed inside the pair), win chance 60-88%, price >= 1.15,
@@ -572,15 +669,16 @@ def leg_pool(night: str, con, players: bool = False, exclude=()) -> pd.DataFrame
     P = pd.read_sql("SELECT * FROM predictions WHERE night = ? AND status = 'open'", con, params=[night])
     if P.empty:
         sys.exit(f"no open predictions for {night}: run price first")
-    P["family"] = [family(t, s) for t, s in zip(P.type, P.scope)]
-    ok = (P.p_method == "no_vig") & P.p.between(*LEG_P) & (P.odds >= LEG_MIN_ODDS) & (P.type != "UNPARSED")
-    ok &= P.type != "DNB"                                     # its price is 'given no draw': a draw voids the leg
-    if not players:
-        ok &= P.family != "player"
+    P = P[P.captured == P.groupby("game").captured.transform("max")]       # only prices from the latest capture of each game
+    P = _legs_only(P) if not players else P[(P.p_method == "no_vig") & P.p.between(*LEG_P) & (P.odds >= LEG_MIN_ODDS)
+                                            & ~P.type.isin(["UNPARSED", "DNB"])].assign(arm=lambda z: [arm_of(t, s_, p) for t, s_, p in zip(z.type, z.scope, z.p)])
     text = P.game + " " + P.market.fillna("") + " " + P.selection.fillna("") + " " + P.subject.fillna("")
     for n in exclude:
-        ok &= ~text.str.contains(n, case=False, regex=False)
-    P = P[ok].copy()
+        P = P[~text.str.contains(n, case=False, regex=False)]
+    A = arms(con).set_index("arm")
+    shift = P.arm.map(A["shift"]).fillna(0.0) if len(A) else 0.0
+    P = P.copy()
+    P["p"] = (P.p + shift / P.odds).clip(0.50, 0.95)          # the arm's record moves the leg's chance (0 until games are graded)
     P["edge"] = P.p * P.odds - 1
     P["subject"] = P.subject.fillna("")
     P = P.sort_values("edge", ascending=False).groupby(["game", "type", "scope", "subject"]).head(1)
@@ -621,9 +719,14 @@ def slips(night: str, targets, con, players: bool = False, exclude=(), replace: 
     done = con.execute("SELECT count(DISTINCT night || game) FROM predictions WHERE status = 'graded'").fetchone()[0]
     print(f"{night}: {len(pool)} candidate legs in {pool.game.nunique() if len(pool) else 0} games "
           f"(two-way priced, {LEG_P[0]:.0%}-{LEG_P[1]:.0%}, price >= {LEG_MIN_ODDS})")
+    A = arms(con)
+    if len(A):
+        print("bandit arms (flat return per game; shift = posterior - prior is added to each leg of that arm):")
+        print(A.round(3).to_string(index=False))
     print(f"ledger: {done} graded games. PAPER ONLY: the report decides at {DECIDE_GAMES} games whether legs like "
           f"these lose less than the margin says. Until then every slip below loses on average.")
-    used = set()
+    redo = {f"{t:g}x" for t in targets} if replace else set()      # legs of every other slip of the night stay taken
+    used = {k for k, sid_ in con.execute("SELECT row_key, slip_id FROM slip_legs WHERE night = ?", [night]) if sid_ not in redo}
     for t in targets:
         sid = f"{t:g}x"
         old = con.execute("SELECT odds, p, status FROM slips WHERE night = ? AND slip_id = ?", [night, sid]).fetchone()
@@ -656,6 +759,95 @@ def slips(night: str, targets, con, players: bool = False, exclude=(), replace: 
     con.commit()
     print("\nBefore placing anything: confirm both starting goalies in every leg's game and rerun with --exclude "
           "\"AWY@HOM\" --replace for games where one is unknown.")
+
+
+STRATEGIES = {
+    "chance": "highest win chance by the book's price (legs 55-92%, any number of legs)",
+    "bandit": "least margin paid, legs 60-88%, chances moved by the bandit's record of each kind of leg",
+    "model":  "highest win chance among legs where the goals model rates the leg at least as likely as the book",
+}
+
+
+def _search(d: pd.DataFrame, target: float, score: str, tol: float = 0.20, width: int = 600, max_legs: int = 10):
+    """One leg per game; slip pays target .. target * (1 + tol); best by sum of log(score column) (+ log odds for
+    the margin objective). Beam search over the legs sorted by game."""
+    d = d.reset_index(drop=True)
+    lo, hi = math.log(target) - 1e-9, math.log(target * (1 + tol))
+    lo_o, gm = np.log(d.odds.values), d.game.values
+    sc = np.log(d.p.values) + lo_o if score == "p_margin" else np.log(d[score].values)
+    beam, best = [((), 0.0, 0.0)], None
+    for _ in range(max_legs):
+        nxt = []
+        for legs, o, v in beam:
+            gs = {gm[i] for i in legs}
+            for j in range(legs[-1] + 1 if legs else 0, len(d)):
+                if gm[j] in gs or o + lo_o[j] > hi:
+                    continue
+                c = (legs + (j,), o + lo_o[j], v + sc[j])
+                if c[1] >= lo:
+                    best = c if best is None or c[2] > best[2] else best
+                else:
+                    nxt.append(c)
+        if not nxt:
+            break
+        a_ = sorted(nxt, key=lambda c: c[2] + c[1], reverse=True)[:width // 2]
+        b_ = sorted(nxt, key=lambda c: c[2], reverse=True)[:width // 2]
+        beam = list({c[0]: c for c in a_ + b_}.values())
+    return None if best is None else d.loc[list(best[0])]
+
+
+def strategy_slips(night: str, targets, con, exclude=(), only=None) -> None:
+    """The same targets built three ways, every slip stored and graded under '<target>x-<strategy>', so the report
+    can say which way of building comes closest to what it promised. Within one strategy no leg is used twice;
+    across strategies the same leg may appear (they are separate tests, and win or lose together on that leg)."""
+    P = pd.read_sql("SELECT * FROM predictions WHERE night = ? AND status = 'open'", con, params=[night])
+    P = P[P.captured == P.groupby("game").captured.transform("max")]
+    fam = pd.Series([family(t, s_) for t, s_ in zip(P.type, P.scope)], index=P.index)
+    P = P[(P.p_method == "no_vig") & ~P.type.isin(["UNPARSED", "DNB"]) & (fam != "player") & (P.odds >= 1.10)].copy()
+    text = P.game + " " + P.market.fillna("") + " " + P.selection.fillna("") + " " + P.subject.fillna("")
+    for n in exclude:
+        P = P[~text.str.contains(n, case=False, regex=False)]
+    P["subject"] = P.subject.fillna("")
+    one = lambda x, col: x.sort_values(col, ascending=False).groupby(["game", "type", "scope", "subject", "side"]).head(1)
+    pools = {"chance": one(P[P.p_book.between(0.55, 0.92)], "p_book"),
+             "bandit": leg_pool(night, con, False, exclude),
+             "model": one(P[P.p_model.notna() & (P.p_model >= P.p_book) & P.p_book.between(0.50, 0.92)], "p_model")}
+    score = {"chance": "p_book", "bandit": "p_margin", "model": "p_model"}
+    now, rows = pd.Timestamp.now("UTC").isoformat(), []
+    # one leg in one slip of the night, across strategies too (2026-11-22: Tampa Bay to win was in three slips and
+    # sank all three). Slips of other strategies already stored tonight keep their legs reserved.
+    taken = {k for k, sid_ in con.execute("SELECT row_key, slip_id FROM slip_legs WHERE night = ?", [night])
+             if "-" in sid_ and sid_.split("-", 1)[1] not in (only or pools)}
+    for strat, pool in pools.items():
+        if only and strat not in only:
+            continue
+        used = set()
+        for t in targets:
+            sid = f"{t:g}x-{strat}"
+            legs, note = _search(pool[~pool.row_key.isin(used | taken)], t, score[strat]), ""
+            if legs is None:
+                legs, note = _search(pool[~pool.row_key.isin(used)], t, score[strat]), "  (shares a leg with another slip: too few games)"
+            if legs is None:
+                print(f"  {sid}: not reachable"); continue
+            used |= set(legs.row_key)
+            taken |= set(legs.row_key)
+            o, p, pb = float(np.prod(legs.odds)), float(np.prod(legs.p)), float(np.prod(legs.p_book))
+            pm = float(np.prod(legs.p_model.fillna(legs.p_book)))
+            con.execute("DELETE FROM slips WHERE night = ? AND slip_id = ?", [night, sid])
+            con.execute("DELETE FROM slip_legs WHERE night = ? AND slip_id = ?", [night, sid])
+            con.execute("INSERT INTO slips (night, slip_id, target, odds, p, ev, legs, built) VALUES (?,?,?,?,?,?,?,?)",
+                        [night, sid, t, round(o, 4), p, p * o - 1, len(legs), now])
+            con.executemany("INSERT INTO slip_legs VALUES (?,?,?,?,?,?,?,?,?,?)",
+                            [(night, sid, r.row_key, r.game, r.market, r.selection, r.odds, r.p, r.p_book, r.captured) for r in legs.itertuples()])
+            rows.append(dict(slip=sid, legs=len(legs), pays=o, book=pb, model=pm, ev=p * o - 1))
+            print(f"\n  {sid}: pays {o:.2f} | {len(legs)} legs | book {pb:.1%} | model {pm:.1%} | expected return {p * o - 1:+.1%}{note}")
+            for r in legs.itertuples():
+                sel = r.selection if not r.subject or r.subject in r.selection else f"{r.subject} {r.selection}"
+                print(f"     {r.game:<8} {r.market[:44]:<44} {sel[:30]:<30} @ {r.odds:.2f}  book {r.p_book:.0%}  model "
+                      + (f"{r.p_model:.0%}" if r.p_model == r.p_model else "--"))
+    con.commit()
+    if rows:
+        print("\n" + pd.DataFrame(rows).sort_values("book", ascending=False).round(3).to_string(index=False))
 
 
 def grade_slips(night: str, con) -> None:
@@ -861,6 +1053,14 @@ def report(con, test_night: str | None) -> None:
     L += [f"**Verdict: {v}**\n"]
     L.insert(1, f"**Verdict on 3-7x slips: {v}**\n")
 
+    SA = stat_arms(con)
+    if len(SA):
+        L += ["## Team stats against the book (legs priced 40-60%)\n", SA.round(3).to_markdown(index=False), "",
+              "stats agree = the team stat sheet (teamstats.py) pointed the same way as the bet. A positive posterior "
+              "for 'agree' would mean the book under-prices what the stats show; for 'disagree', that it over-prices it.\n"]
+    L += ["## Bandit arms: which kind of leg has paid better or worse than its price\n", arms(con).round(3).to_markdown(index=False), "",
+          f"prior = the book's own price (its margin), worth {ARM_K0} games. `slips` adds `shift` to every leg of the arm. "
+          "p_best = chance the arm is truly the best one, given the games so far.\n"]
     L.append("## Slip ledger: every slip that was built, said vs happened\n")
     S = pd.read_sql("SELECT * FROM slips WHERE status = 'graded' AND result IN ('won', 'lost')", con)
     if len(S):
@@ -873,6 +1073,18 @@ def report(con, test_night: str | None) -> None:
         L += [pd.DataFrame(rows).round(3).to_markdown(index=False), "",
               "A 5x slip wins about 1 time in 6: fewer than ~100 slips per target says nothing about return; "
               "`said_wins` against `wins` is the part that can be read earlier.\n"]
+        S["strategy"] = S.slip_id.str.split("-", n=1).str[1].fillna("rule")
+        rows = [dict(strategy=k, slips=len(x), said_wins=x.p.sum(), wins=int((x.result == "won").sum()),
+                     legs_said=float((x.p ** (1 / x.legs)).mean()), ret=x.paid.mean() - 1) for k, x in S.groupby("strategy")]
+        L += ["By strategy (built the same night, same targets; legs_said = average chance per leg):\n",
+              pd.DataFrame(rows).round(3).to_markdown(index=False), ""]
+        lg = pd.read_sql("SELECT l.slip_id, p.result, l.p_book FROM slip_legs l JOIN predictions p ON p.night = l.night AND "
+                         "p.row_key = l.row_key WHERE p.result IN ('won', 'lost')", con)
+        if len(lg):
+            lg["strategy"] = lg.slip_id.str.split("-", n=1).str[1].fillna("rule")
+            L += ["Legs by strategy (each leg graded on its own):\n",
+                  lg.groupby("strategy").agg(legs=("result", "size"), said=("p_book", "mean"),
+                                             won=("result", lambda r: (r == "won").mean())).round(3).to_markdown(), ""]
         mv = pd.read_sql("SELECT l.night, l.game, p.p_book - l.p_book AS move FROM slip_legs l JOIN predictions p "
                          "ON p.night = l.night AND p.row_key = l.row_key WHERE p.captured > l.captured", con)
         if len(mv):
@@ -961,7 +1173,10 @@ def ingest_results(date: str, folder: str, out: str) -> None:
             L.append(f"{r.team} {nm(r)}: {int(r.goals)} {int(r.assists)} {int(r.shots_on_goal)} {int(r.blocked_shots)} {int(r.hits)}")
         for r in gk[(gk.game_id == g.game_id) & gk.played.astype(bool)].itertuples():
             L.append(f"G {r.team} {nm(r)}: {int(r.saves)} {int(r.goals_against)}")   # GA never has the shootout goal
-        L.append(f"COMPLETE {g.home_team} {g.away_team}")
+        full = [t for t in (g.home_team, g.away_team)           # a goalie can score (Shesterkin, 2026-10-01): then the
+                if int(sk[(sk.game_id == g.game_id) & (sk.team == t)].goals.sum()) == sum(line(t))]     # skater list is not all goals
+        if full:
+            L.append("COMPLETE " + " ".join(full))
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text("\n".join(L) + "\n", encoding="utf-8")
     games, errs = read_results(out)
@@ -979,6 +1194,7 @@ def ingest_teams(date: str, folder: str, out: str) -> None:
     a = pd.concat([fin[["home_team", "home_reg", "away_reg"]].set_axis(["team", "gf", "ga"], axis=1),
                    fin[["away_team", "away_reg", "home_reg"]].set_axis(["team", "gf", "ga"], axis=1)])
     t = a.groupby("team").agg(gp=("gf", "size"), gf=("gf", "sum"), ga=("ga", "sum")).reset_index()
+    t["reg"] = 1                                              # marks the goals as regulation-only for team_rates()
     t.to_csv(out, index=False)
     side = lambda day: set(sch[sch.d == day].home_team) | set(sch[sch.d == day].away_team)
     b2b = sorted(side(date) & side((pd.Timestamp(date) - pd.Timedelta(days=1)).strftime("%Y-%m-%d")))
@@ -988,6 +1204,40 @@ def ingest_teams(date: str, folder: str, out: str) -> None:
     print(f"tied after 60 min: {(fin.ended_in != 'REG').mean():.1%} of {len(fin)} games; plain Poisson says {(pz ** 2).sum():.1%}, "
           f"the model with TIE_K = {TIE_K} says {TIE_K * (pz ** 2).sum() / (1 + (TIE_K - 1) * (pz ** 2).sum()):.1%}")
     print(f"back-to-back on {date}: --b2b {','.join(b2b) or '(none)'}")
+
+
+def sync(folder: str, con) -> None:
+    """Grade only what is new: every night in the ledger that still has a game without graded rows is checked
+    against the ingest tables, and graded when the ingest has a finished game the ledger has not settled yet.
+    Games still being played stay open; their slips wait."""
+    sch = _ingest(folder, "schedule")
+    sch = sch[sch.ended_in.notna()]
+    done = set(sch.game_date.astype(str).str[:10] + "|" + sch.away_team + "@" + sch.home_team)
+    have = {(n, g) for n, g in con.execute("SELECT night, game FROM synced")}       # settled from the full box score
+    P = [(n, g) for n, g in con.execute("SELECT DISTINCT night, game FROM predictions") if (n, g) not in have]
+    new = [(n, g) for n, g in P if f"{n}|{g}" in done]
+    todo, waiting = sorted({n for n, _ in new}), sorted(f"{n} {g}" for n, g in P if f"{n}|{g}" not in done)
+    print(f"ingest: {len(sch)} finished games, last {sch.game_date.max()}; nights with new results: {todo or 'none'}"
+          + (f"; not finished or not ingested yet: {waiting}" if waiting else ""))
+    for night in todo:
+        out = str(Path(DB).with_name("results") / f"{night}.txt")
+        ingest_results(night, folder, out)
+        grade(night, out, con)
+    con.executemany("INSERT OR IGNORE INTO synced VALUES (?, ?)", new)
+    con.commit()
+    if todo:
+        try:                                                  # refresh the stats-vs-book arms from the new grades
+            import contextlib, io
+            import teamstats
+            with contextlib.redirect_stdout(io.StringIO()):
+                D = teamstats.lean(folder, DB)
+            con.execute("DELETE FROM lean_legs")
+            con.executemany("INSERT OR REPLACE INTO lean_legs VALUES (?,?,?,?,?,?,?,?)",
+                            D[["night", "game", "kind", "agree", "strong", "p", "odds", "y"]].astype(object).values.tolist())
+            con.commit()
+        except Exception as e:
+            print(f"  stats-vs-book arms not refreshed: {e}")
+        report(con, None)
 
 
 def fetch_results(date: str, out: str) -> None:
@@ -1082,7 +1332,7 @@ def selftest() -> None:
     (tmp / "boards" / "TOR-BOS.net.json").write_text(json.dumps([dict(url="GetEventDetails", body=ev)]))
     (tmp / "teams.csv").write_text("team,gp,gf,ga\nTOR,18,62,50\nBOS,18,50,55\nMTL,18,54,54\n")
     # Toronto 3 (1,0,2) Boston 3 (0,2,1); Boston wins in the shootout -> final 3:4 with OT/SO, 3:3 regulation
-    (tmp / "res.txt").write_text("GAME BOS@TOR\nP TOR 1 0 2\nP BOS 0 2 1\nSO BOS\nTOR A. Matthews: 1 0 5 2 3\nTOR B. Matthews: 0 0 1\nG TOR Joseph Woll: 27 3\n")
+    (tmp / "res.txt").write_text("GAME BOS@TOR\nP TOR 1 0 2\nP BOS 0 2 1\nSO BOS\nTOR A. Matthews: 1 0 5 2 3\nTOR B. Matthews: 0 0 1\nTOR Twin Name: 1 0 1\nTOR Twin Name: 0 0 2\nG TOR Joseph Woll: 27 3\n")
     global DB
     DB = str(tmp / "t.sqlite")
     con = connect()
@@ -1111,7 +1361,10 @@ def selftest() -> None:
               ("ML model sums to 1", abs(g[g.type == "ML"].p_model.sum() - 1) < 1e-9, None),
               ("model favours TOR at home vs b2b BOS", float(g[(g.type == "ML") & (g.side == "home")].p_model.iloc[0]) > 0.5, None),
               ("total over/under model sums to 1", abs(g[(g.type == "TOTAL") & (g.scope == "G") & (g.line == 5.5)].p_model.sum() - 1) < 1e-9, None)]
-    _, errs = read_results(str(tmp / "res.txt"))
+    gm, errs = read_results(str(tmp / "res.txt"))
+    twin = gm["BOS@TOR"]["sk"]
+    checks.append(("two players with one name: both counted, neither matched",
+                   sum(v["goals"] for v in twin.values()) == 2 and _find(twin, "Twin Name") is None, list(twin)))
     (tmp / "bad.txt").write_text("GAME BOS@TOR\nP TOR 1 0 2\nP BOS 0 2 1\n")
     _, errs2 = read_results(str(tmp / "bad.txt"))
     checks += [("good results accepted", not errs, errs), ("tie without OT/SO rejected", bool(errs2), None)]
@@ -1181,7 +1434,7 @@ def _slip_selftest(tmp: Path) -> list:
         lg = pd.read_sql("SELECT * FROM slip_legs WHERE night = ?", con, params=[night])
         one = len(s) == 1 and 3 <= s.odds[0] <= 3.6 and lg.game.nunique() == len(lg) == s.legs[0]
         out += [(f"slip {night}: one 3x slip, one leg per game, 50x not reachable", one, s.to_dict("records")),
-                (f"slip {night}: P = product of legs, EV negative", one and abs(s.p[0] - lg.p.prod()) < 1e-9 and s.ev[0] < 0, None),
+                (f"slip {night}: P = product of legs, EV negative", one and abs(s.p[0] - lg.p.prod()) < 1e-9 and (s.ev[0] < 0 or night != "2026-02-01"), None),
                 (f"slip {night}: graded {want}", one and s.result[0] == want and abs(s.paid[0] - (s.odds[0] if want == "won" else 0)) < 1e-3, None)]
     report(con, None)
     return out
@@ -1198,6 +1451,12 @@ def main():
     s.add_argument("--ingest", help="folder with nhl_ingest.py's CSV tables (preferred over the live API)")
     s = sub.add_parser("grade"); s.add_argument("--date", required=True); s.add_argument("--results", required=True)
     s = sub.add_parser("report"); s.add_argument("--test-night")
+    s = sub.add_parser("sync"); s.add_argument("--ingest", required=True)
+    s = sub.add_parser("strategies"); s.add_argument("--date", required=True)
+    s.add_argument("--targets", nargs="+", type=float, default=[3, 7]); s.add_argument("--exclude", nargs="*", default=[])
+    s.add_argument("--only", nargs="*", choices=list(STRATEGIES), help="rebuild only these strategies")
+    sub.add_parser("arms")
+    s = sub.add_parser("compare"); s.add_argument("--date", required=True); s.add_argument("--ingest", required=True)
     s = sub.add_parser("teams"); s.add_argument("--date", required=True); s.add_argument("--out", default="teams.csv")
     s.add_argument("--ingest", help="folder with nhl_ingest.py's CSV tables")
     s = sub.add_parser("slips"); s.add_argument("--date", required=True)
@@ -1224,6 +1483,22 @@ def main():
         grade(a.date, a.results, connect())
     elif a.cmd == "report":
         report(connect(), a.test_night)
+    elif a.cmd == "arms":
+        pd.set_option("display.width", 200)
+        con = connect()
+        print(arms(con).round(3).to_string(index=False))
+        SA = stat_arms(con)
+        if len(SA):
+            print("\nteam stats against the book (legs priced 40-60%):")
+            print(SA.round(3).to_string(index=False))
+    elif a.cmd == "compare":
+        import teamstats
+        txt = teamstats.compare(a.ingest, a.date, DB)
+        Path(DB).with_name(f"compare_{a.date}.md").write_text(txt, encoding="utf-8")
+    elif a.cmd == "strategies":
+        strategy_slips(a.date, a.targets, connect(), a.exclude, a.only)
+    elif a.cmd == "sync":
+        sync(a.ingest, connect())
 
 
 if __name__ == "__main__":
