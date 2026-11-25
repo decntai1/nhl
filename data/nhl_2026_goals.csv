@@ -2420,3 +2420,11 @@ game_id,season,game_type,game_date,goal_no,period,period_type,time_in_period,gam
 2026020384,20262027,2,2026-11-23,5,2,REG,00:13,1213,MIN,False,8478493,Joel Eriksson Ek,8478864,Kirill Kaprizov,8474716,Jared Spurgeon,ev,none,False,wrist,2,3,9
 2026020384,20262027,2,2026-11-23,6,3,REG,18:24,3504,MIN,False,8476399,Blake Coleman,8482641,Matt Kiersted,,,ev,empty-net,True,wrist,2,4,8
 2026020384,20262027,2,2026-11-23,7,3,REG,19:06,3546,MIN,False,8478493,Joel Eriksson Ek,8481557,Matt Boldy,8478864,Kirill Kaprizov,ev,empty-net,True,wrist,2,5,10
+2026020385,20262027,2,2026-11-24,1,1,REG,06:13,373,VGK,False,8478403,Jack Eichel,8478483,Mitch Marner,8478109,Victor Olofsson,pp,none,False,wrist,0,1,10
+2026020385,20262027,2,2026-11-24,2,1,REG,09:07,547,VGK,False,8484803,Trevor Connelly,,,,,ev,none,False,backhand,0,2,8
+2026020385,20262027,2,2026-11-24,3,2,REG,03:03,1383,EDM,True,8482703,Colton Dach,8480803,Evan Bouchard,8478472,Mathieu Joseph,ev,none,False,tip-in,1,2,6
+2026020385,20262027,2,2026-11-24,4,2,REG,19:41,2381,EDM,True,8478402,Connor McDavid,8477953,Kasperi Kapanen,8480803,Evan Bouchard,ev,none,False,wrist,2,2,14
+2026020385,20262027,2,2026-11-24,5,3,REG,02:08,2528,VGK,False,8475343,Nic Dowd,8483553,Marc Gatcomb,,,ev,none,False,wrist,2,3,1
+2026020385,20262027,2,2026-11-24,6,3,REG,05:29,2729,VGK,False,8478403,Jack Eichel,8484803,Trevor Connelly,8477447,Shea Theodore,ev,none,False,wrist,2,4,11
+2026020385,20262027,2,2026-11-24,7,3,REG,05:45,2745,EDM,True,8481617,Vasily Podkolzin,8476473,Connor Murphy,8478854,Ryan Shea,ev,none,False,wrist,3,4,14
+2026020385,20262027,2,2026-11-24,8,3,REG,17:28,3448,VGK,False,8484803,Trevor Connelly,8478483,Mitch Marner,8476448,William Karlsson,ev,empty-net,True,wrist,3,5,9

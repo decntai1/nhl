@@ -767,3 +767,5 @@ game_id,season,game_type,game_date,team,opponent,is_home,goals,goals_against,goa
 2026020383,20262027,2,2026-11-23,ANA,SEA,False,2,3,2,3,0,False,26,21,18,0,6,34,8,9,3,False,False,False,L,False
 2026020384,20262027,2,2026-11-23,SJS,MIN,True,2,5,2,5,0,False,24,31,26,1,6,16,11,16,1,False,False,False,L,False
 2026020384,20262027,2,2026-11-23,MIN,SJS,False,5,2,5,2,0,False,31,24,22,1,8,31,9,14,4,True,True,False,W,True
+2026020385,20262027,2,2026-11-24,EDM,VGK,True,3,5,3,5,0,False,24,27,22,0,6,31,11,18,5,False,False,False,L,False
+2026020385,20262027,2,2026-11-24,VGK,EDM,False,5,3,5,3,0,False,27,24,21,1,2,21,21,20,5,True,True,False,W,True
